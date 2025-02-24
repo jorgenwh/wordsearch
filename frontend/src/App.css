@@ -1,13 +1,30 @@
 .App {
     text-align: center;
-    background-color: #000;
+    background-color: black;
 
     display: flex;
     flex-direction: column;
+
+    min-height: 100vh;
 }
 
 .Title {
-    color: grey;
+    color: white;
     font-size: 3em;
+    font-weight: 500;
+}
+
+.Loading {
+    color: white;
+    font-size: 3em;
+    font-weight: 500;
+    margin: 3em auto auto auto;
+}
+
+.Error {
+    color: red;
+    font-size: 3em;
+    font-weight: 500;
+    margin: 3em auto auto auto;
 }
 

@@ -1,0 +1,11 @@
+.Grid {
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    grid-template-rows: repeat(10, 1fr);
+
+    grid-gap: 0px;
+    width: 500px;
+    height: 500px;
+
+    background-color: black;
+}

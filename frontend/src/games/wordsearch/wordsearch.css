@@ -1,0 +1,22 @@
+.WordSearch {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin: 1em auto auto auto;
+}
+
+.Words {
+    color: white;
+    font-size: 2em;
+    font-weight: 400;
+    margin: 1em auto auto auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: left;
+}
+
+.Loading {
+    margin: 3em auto auto auto;
+    color: white;
+    font-size: 3em;
+}

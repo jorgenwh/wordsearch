@@ -2,7 +2,7 @@ import os
 from fastapi import FastAPI, Request, Response, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from apscheduler.schedulers.background import BackgroundScheduler
-from apscheduler.triggers.cron import CronTrigger
+from apscheduler.triggers.interval import IntervalTrigger
 from dotenv import load_dotenv
 import uuid
 
@@ -56,7 +56,7 @@ def update_config():
 scheduler = BackgroundScheduler()
 scheduler.add_job(
     update_config,
-    CronTrigger(hour=0, minute=0, second=0),
+    trigger=IntervalTrigger(hours=1),
 )
 
 
@@ -114,13 +114,14 @@ async def get_daily_config(request: Request):
 
     global SESSIONS, DAILY_CONFIG
     if session_id not in SESSIONS:
-        return {"error": "No session found. Please refresh the page."}
-
-    update_config()
+        raise HTTPException(status_code=401, detail="No session found")
 
     pc = prepare_config(DAILY_CONFIG)
     if pc is None:
-        return {"error": "Failed to generate config"}
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+    print("Sending daily config to session:", session_id)
+    print(pc)
 
     return pc
 

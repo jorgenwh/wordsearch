@@ -9,7 +9,7 @@ interface GridProps {
     onWordFound: (word: string) => void;
 }
 
-function Grid({ content, wordPositions, found, onWordFound} : GridProps) {
+const Grid = ({ content, wordPositions, found, onWordFound} : GridProps) => {
     const [selected, setSelected] = useState<{row: number, col: number} | undefined>(undefined);
 
     const handleOnClick = (row: number, col: number) => {

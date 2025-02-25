@@ -8,12 +8,12 @@ interface CellProps {
     onClick: () => void;
 }
 
-function Cell({ 
+const Cell = ({ 
     character,
     isSelected,
     isFound,
     onClick
-} : CellProps) {
+} : CellProps) => {
 
     const style = {
         color: isFound ? 'yellow' : (isSelected ? 'yellow' : 'white'),

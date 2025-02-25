@@ -17,7 +17,7 @@ interface GameState {
     wordPositions: {entry: {word: string, positions: {row: number, col: number}[]}}[];
 }
 
-function WordSearch({ config, setCompleted } : WordSearchProps) {
+const WordSearch = ({ config, setCompleted } : WordSearchProps) => {
     const words = config?.words || [];
 
     const [found, setFound] = useState<string[]>([]);

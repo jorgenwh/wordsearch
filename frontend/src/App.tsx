@@ -8,6 +8,10 @@ import Weave from './games/weave/weave';
 import { WeaveConfig } from './games/weave/weave';
 
 
+const FRONTEND_PORT = 3000;
+const BACKEND_PORT = 8000;
+
+
 interface DailyConfig {
     wordSearchConfig: WordSearchConfig;
     weaveConfig: WeaveConfig;
@@ -15,8 +19,8 @@ interface DailyConfig {
 
 
 const App = () => {
-    const [sessionId, setSessionId] = useState<string>("");
-    const [game, setGame] = useState<string>("wordsearch");
+    const [sessionId, setSessionId] = useState<string | undefined>(undefined);
+    const [game, setGame] = useState<string>("weave");
     const [dailyConfig, setDailyConfig] = useState<DailyConfig | undefined>(undefined);
     const [error, setError] = useState<string | undefined>(undefined);
 
@@ -34,7 +38,7 @@ const App = () => {
     }
 
     useEffect(() => {
-        axios.get("http://178.232.190.235:8000/session", {
+        axios.get(`http://178.232.190.235:${BACKEND_PORT}/session`, {
             headers: { "X-API-KEY": "vanillachocolate" },
             withCredentials: true,
         })
@@ -47,7 +51,11 @@ const App = () => {
     }, []);
 
     useEffect(() => {
-        axios.get<DailyConfig>("http://178.232.190.235:8000/get_daily_config", {
+        if (sessionId === undefined) {
+            return;
+        }
+
+        axios.get<DailyConfig>(`http://178.232.190.235:${BACKEND_PORT}/get_daily_config`, {
             headers: { "X-API-KEY": "vanillachocolate" },
             withCredentials: true,
         })
@@ -57,7 +65,11 @@ const App = () => {
         .catch((error) => {
             setError("Error loading daily config: " + error);
         });
-    }, []);
+    }, [sessionId]);
+
+    console.log("sessionId: " + sessionId);
+    console.log("dailyConfig: " + dailyConfig);
+    console.log("error: " + error);
 
     if (error !== undefined) {
         return (
@@ -67,10 +79,18 @@ const App = () => {
         );
     }
 
+    if (sessionId === undefined) {
+        return (
+            <div className="App">
+                <h1 className="Loading">Loading session...</h1>
+            </div>
+        );
+    }
+
     if (dailyConfig === undefined) {
         return (
             <div className="App">
-                <h1 className="Loading">Loading...</h1>
+                <h1 className="Loading">Loading daily config...</h1>
             </div>
         );
     }

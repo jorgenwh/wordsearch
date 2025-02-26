@@ -63,5 +63,7 @@ def get_weave_config() -> WeaveConfig:
 
     config.start_word = start_word
     config.target_word = target_word
+    config.word_list = WORD_LIST
+
     return config
 

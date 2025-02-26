@@ -10,6 +10,7 @@ class WeaveConfig:
     def __init__(self):
         self.start_word: str | None = None
         self.target_word: str | None = None
+        self.word_list: List[str] = None
 
 
 class Config:

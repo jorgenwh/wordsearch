@@ -21,17 +21,18 @@ interface DailyConfig {
 
 const App = () => {
     const [dailyConfig, setDailyConfig] = useState<DailyConfig | undefined>(
-        {
-            wordSearchConfig: {
-                words: ["123", "456", "789"],
-            },
-            weaveConfig: {
-                startWord: "clump",
-                targetWord: "chile",
-            },
-        }
+        // {
+        //     wordSearchConfig: {
+        //         words: ["123", "456", "789"],
+        //     },
+        //     weaveConfig: {
+        //         startWord: "clump",
+        //         targetWord: "chile",
+        //     },
+        // }
+        undefined
     );
-    const [game, setGame] = useState<string>(dailyConfig === undefined ? "" : "wordsearch");
+    const [game, setGame] = useState<string>("wordsearch");
     const [error, setError] = useState<string | undefined>(undefined);
     const [sessionId, setSessionId] = useState<string | undefined>(undefined);
     const [times, setTimes] = useState<{game: string, time: number}[]>([]);
@@ -40,8 +41,6 @@ const App = () => {
         setTimes([...times, {game, time: elapsedTime}]);
 
         switch (game) {
-            case "":
-                break;
             case "wordsearch":
                 setGame("weave");
                 break;
@@ -54,35 +53,37 @@ const App = () => {
         }
     }
 
-    // useEffect(() => {
-    //     axios.get(`http://178.232.190.235:${BACKEND_PORT}/session`, {
-    //         headers: { "X-API-KEY": "vanillachocolate" },
-    //         withCredentials: true,
-    //     })
-    //     .then((response) => {
-    //         setSessionId(response.data.session_id);
-    //     })
-    //     .catch((error) => {
-    //         setError("Error loading session: " + error);
-    //     });
-    // }, []);
-    //
-    // useEffect(() => {
-    //     if (sessionId === undefined) {
-    //         return;
-    //     }
-    //
-    //     axios.get<DailyConfig>(`http://178.232.190.235:${BACKEND_PORT}/get_daily_config`, {
-    //         headers: { "X-API-KEY": "vanillachocolate" },
-    //         withCredentials: true,
-    //     })
-    //     .then((response) => {
-    //         setDailyConfig(response.data);
-    //     })
-    //     .catch((error) => {
-    //         setError("Error loading daily config: " + error);
-    //     });
-    // }, [sessionId]);
+    useEffect(() => {
+        axios.get(`http://178.232.190.235:${BACKEND_PORT}/session`, {
+            headers: { "X-API-KEY": "vanillachocolate" },
+            withCredentials: true,
+        })
+        .then((response) => {
+            console.log("Received session ID: ", response.data.session_id);
+            setSessionId(response.data.session_id);
+        })
+        .catch((error) => {
+            setError("Error loading session: " + error);
+        });
+    }, []);
+
+    useEffect(() => {
+        if (sessionId === undefined) {
+            return;
+        }
+
+        axios.get<DailyConfig>(`http://178.232.190.235:${BACKEND_PORT}/get_daily_config`, {
+            headers: { "X-API-KEY": "vanillachocolate" },
+            withCredentials: true,
+        })
+        .then((response) => {
+            console.log("Received daily config: ", response.data);
+            setDailyConfig(response.data);
+        })
+        .catch((error) => {
+            setError("Error loading daily config: " + error);
+        });
+    }, [sessionId]);
     
 
     if (error !== undefined) {
@@ -93,13 +94,13 @@ const App = () => {
         );
     }
 
-    // if (sessionId === undefined) {
-    //     return (
-    //         <div className="App">
-    //             <h1 className="Loading">Loading session...</h1>
-    //         </div>
-    //     );
-    // }
+    if (sessionId === undefined) {
+        return (
+            <div className="App">
+                <h1 className="Loading">Loading session...</h1>
+            </div>
+        );
+    }
 
     if (dailyConfig === undefined) {
         return (
@@ -112,14 +113,6 @@ const App = () => {
     let content = null;
     let header = null;
     switch (game) {
-        case "":
-            header = (
-                <h1 className="Title">Loading...</h1>
-            );
-            content = (
-                <div>Loading...</div>
-            );
-            break;
         case "wordsearch":
             header = (
                 <h1 className="Title">Word Search</h1>
@@ -144,7 +137,7 @@ const App = () => {
             break;
         case "endscreen":
             header = (
-                <h1 className="Title">End Screen</h1>
+                <h1 className="Title">Results</h1>
             );
             content = (
                 <EndScreen

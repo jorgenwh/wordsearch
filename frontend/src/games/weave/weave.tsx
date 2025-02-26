@@ -5,6 +5,7 @@ import WordRow from './wordrow';
 export interface WeaveConfig {
     startWord: string;
     targetWord: string;
+    wordList: string[];
 }
 
 interface WeaveProps {
@@ -25,6 +26,7 @@ const getColors = (characters: string[], target: string[]) => {
 const Weave = ({ config, gameCompleted } : WeaveProps) => {
     const startWord: string[] | undefined = config?.startWord.split("") || undefined;
     const targetWord: string[] | undefined = config?.targetWord.split("") || undefined;
+    const wordList: string[] | undefined = config?.wordList || undefined;
 
     const [history, setHistory] = useState<string[][]>([]);
     const [input, setInput] = useState<string[]>(["", "", "", "", ""]);
@@ -33,6 +35,10 @@ const Weave = ({ config, gameCompleted } : WeaveProps) => {
 
     const isInputValid = () => {
         if (activeIndex !== 4 || input[4] === "") {
+            return false;
+        }
+
+        if (!wordList.includes(input.join("").toLowerCase())) {
             return false;
         }
 
@@ -111,7 +117,7 @@ const Weave = ({ config, gameCompleted } : WeaveProps) => {
         return () => window.removeEventListener("keydown", handleKeyDown);
     }, [activeIndex, input, history]);
 
-    if (startWord === undefined || targetWord === undefined) {
+    if (startWord === undefined || targetWord === undefined || wordList === undefined) {
         return (
             <div className="Weave">
                 <div className="Loading">Error: cannot find config</div>

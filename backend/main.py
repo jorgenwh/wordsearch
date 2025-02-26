@@ -38,6 +38,7 @@ def prepare_config(config) -> dict:
     pc["weaveConfig"] = {
         "startWord": config.weave_config.start_word,
         "targetWord": config.weave_config.target_word,
+        "wordList": config.weave_config.word_list,
     }
 
     return pc
@@ -51,6 +52,7 @@ def update_config():
 
     global DAILY_CONFIG
     DAILY_CONFIG = config
+    print("Config updated")
 
 
 scheduler = BackgroundScheduler()
@@ -120,8 +122,7 @@ async def get_daily_config(request: Request):
     if pc is None:
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
-    print("Sending daily config to session:", session_id)
-    print(pc)
+    print("Sending daily config to session:", session_id, "with IP:", request.client.host)
 
     return pc
 

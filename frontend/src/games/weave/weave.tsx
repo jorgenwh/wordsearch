@@ -9,33 +9,51 @@ export interface WeaveConfig {
 
 interface WeaveProps {
     config: WeaveConfig;
-    setCompleted: () => void;
+    gameCompleted: (elapsedTime: number) => void;
 }
 
 const getColors = (characters: string[], target: string[]) => {
     const colors = new Array(5).fill(0);
     for (let i = 0; i < characters.length; i++) {
-        if (characters[i] === target[i]) {
+        if (characters[i].toUpperCase() === target[i].toUpperCase()) {
             colors[i] = 1;
         }
     }
     return colors;
 }
 
-const Weave = ({ config, setCompleted } : WeaveProps) => {
-    // const startWord: string[] | undefined = config?.startWord.split("") || undefined;
-    // const targetWord: string[] | undefined = config?.targetWord.split("") || undefined;
-    const startWord: string[] | undefined = ["c", "l", "a", "m", "p"];
-    const targetWord: string[] | undefined = ["c", "h", "i", "l", "e"];
+const Weave = ({ config, gameCompleted } : WeaveProps) => {
+    const startWord: string[] | undefined = config?.startWord.split("") || undefined;
+    const targetWord: string[] | undefined = config?.targetWord.split("") || undefined;
 
-    const [history, setHistory] = useState<string[][]>([
-        ["c", "l", "u", "m", "p"], 
-        ["c", "h", "u", "m", "p"], 
-    ]);
-    const [input, setInput] = useState<string[]>([]);
+    const [history, setHistory] = useState<string[][]>([]);
+    const [input, setInput] = useState<string[]>(["", "", "", "", ""]);
     const [activeIndex, setActiveIndex] = useState<number>(0);
+    const [startTime, setStartTime] = useState<number>(Date.now());
 
-    const isWordValid = (word: string[]) => {
+    const isInputValid = () => {
+        if (activeIndex !== 4 || input[4] === "") {
+            return false;
+        }
+
+        let similarity = 0;
+        const reference = history.length > 0 ? history[history.length - 1] : startWord;
+        for (let i = 0; i < 5; i++) {
+            if (input[i].toUpperCase() === reference[i].toUpperCase()) {
+                similarity++;
+            }
+        }
+
+        return similarity === 4;
+    };
+
+    const isDone = () => {
+        for (let i = 0; i < 5; i++) {
+            if (input[i].toUpperCase() !== targetWord[i].toUpperCase()) {
+                return false;
+            }
+        }
+
         return true;
     };
 
@@ -77,7 +95,11 @@ const Weave = ({ config, setCompleted } : WeaveProps) => {
             } else if (event.key === "Enter") {
                 event.preventDefault();
 
-                if (activeIndex === 4 && input[4] !== "" && isWordValid(input)) {
+                if (isInputValid()) {
+                    if (isDone()) {
+                        const elapsedTime = Date.now() - startTime;
+                        gameCompleted(elapsedTime);
+                    }
                     setHistory([...history, input]);
                     setInput(["", "", "", "", ""]);
                     setActiveIndex(0);
@@ -112,7 +134,7 @@ const Weave = ({ config, setCompleted } : WeaveProps) => {
             ))}
             <WordRow
                 characters={input}
-                colors={getColors(input, targetWord)}
+                colors={undefined}
             />
             <WordRow 
                 characters={targetWord}

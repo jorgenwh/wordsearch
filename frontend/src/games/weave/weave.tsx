@@ -10,7 +10,7 @@ export interface WeaveConfig {
 
 interface WeaveProps {
     config: WeaveConfig;
-    gameCompleted: (elapsedTime: number) => void;
+    updateScreen: () => void;
 }
 
 const getColors = (characters: string[], target: string[]) => {
@@ -23,7 +23,7 @@ const getColors = (characters: string[], target: string[]) => {
     return colors;
 }
 
-const Weave = ({ config, gameCompleted } : WeaveProps) => {
+const Weave = ({ config, updateScreen } : WeaveProps) => {
     const startWord: string[] | undefined = config?.startWord.split("") || undefined;
     const targetWord: string[] | undefined = config?.targetWord.split("") || undefined;
     const wordList: string[] | undefined = config?.wordList || undefined;
@@ -98,13 +98,19 @@ const Weave = ({ config, gameCompleted } : WeaveProps) => {
                         setInput(newInput);
                     }
                 }
+                else if (activeIndex === 0 && input[0] === "" && history.length > 0) {
+                    const newInput = history[history.length - 1];
+                    setHistory(history.slice(0, history.length - 1));
+                    setInput(newInput);
+                    setActiveIndex(4);
+                }
             } else if (event.key === "Enter") {
                 event.preventDefault();
 
                 if (isInputValid()) {
                     if (isDone()) {
                         const elapsedTime = Date.now() - startTime;
-                        gameCompleted(elapsedTime);
+                        updateScreen();
                     }
                     setHistory([...history, input]);
                     setInput(["", "", "", "", ""]);

@@ -9,7 +9,7 @@ export interface WordSearchConfig {
 
 interface WordSearchProps {
     config: WordSearchConfig;
-    gameCompleted: (elapsedTime: number) => void;
+    updateScreen: () => void;
 }
 
 interface GameState {
@@ -17,7 +17,7 @@ interface GameState {
     wordPositions: {entry: {word: string, positions: {row: number, col: number}[]}}[];
 }
 
-const WordSearch = ({ config, gameCompleted } : WordSearchProps) => {
+const WordSearch = ({ config, updateScreen } : WordSearchProps) => {
     const words = config?.words || [];
 
     const [found, setFound] = useState<string[]>([]);
@@ -28,7 +28,7 @@ const WordSearch = ({ config, gameCompleted } : WordSearchProps) => {
         setFound([...found, word]);
         if (found.length === words.length - 1) {
             const elapsedTime = Date.now() - startTime;
-            gameCompleted(elapsedTime);
+            updateScreen();
         }
     };
 

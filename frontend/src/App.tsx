@@ -1,118 +1,62 @@
 import { useState, useEffect } from 'react';
 import './App.css';
-import axios from 'axios';
 
-import WordSearch from './games/wordsearch/wordsearch';
-import { WordSearchConfig } from './games/wordsearch/wordsearch';
-import Weave from './games/weave/weave';
-import { WeaveConfig } from './games/weave/weave';
+import StartScreen from './games/startscreen/startscreen';
 import EndScreen from './games/endscreen/endscreen';
 
+import WordSearch from './games/wordsearch/wordsearch';
+import Weave from './games/weave/weave';
 
-const FRONTEND_PORT = 3000;
-const BACKEND_PORT = 8000;
-
-
-interface DailyConfig {
-    wordSearchConfig: WordSearchConfig;
-    weaveConfig: WeaveConfig;
-}
+import { DailyConfig } from './common';
 
 
 const App = () => {
-    const [dailyConfig, setDailyConfig] = useState<DailyConfig | undefined>(
-        // {
-        //     wordSearchConfig: {
-        //         words: ["123", "456", "789"],
-        //     },
-        //     weaveConfig: {
-        //         startWord: "clump",
-        //         targetWord: "chile",
-        //     },
-        // }
-        undefined
-    );
-    const [game, setGame] = useState<string>("wordsearch");
-    const [error, setError] = useState<string | undefined>(undefined);
     const [sessionId, setSessionId] = useState<string | undefined>(undefined);
+    const [dailyConfig, setDailyConfig] = useState<DailyConfig | undefined>(undefined);
+    const [name, setName] = useState<string | undefined>(undefined);
+    const [screen, setScreen] = useState<string>("startscreen");
     const [times, setTimes] = useState<{game: string, time: number}[]>([]);
 
-    const gameCompleted = (elapsedTime: number) => {
-        setTimes([...times, {game, time: elapsedTime}]);
-
-        switch (game) {
+    const updateScreen = () => {
+        switch (screen) {
+            case "startscreen":
+                setScreen("wordsearch");
+                break;
             case "wordsearch":
-                setGame("weave");
+                setScreen("weave");
                 break;
             case "weave":
-                setGame("endscreen");
+                setScreen("endscreen");
                 break;
             default:
-                console.error("Invalid game: " + game);
-                setError("Failed to switch game");
+                console.error("Invalid screen: " + screen);
         }
-    }
-
-    useEffect(() => {
-        axios.get(`http://178.232.190.235:${BACKEND_PORT}/session`, {
-            headers: { "X-API-KEY": "vanillachocolate" },
-            withCredentials: true,
-        })
-        .then((response) => {
-            console.log("Received session ID: ", response.data.session_id);
-            setSessionId(response.data.session_id);
-        })
-        .catch((error) => {
-            setError("Error loading session: " + error);
-        });
-    }, []);
-
-    useEffect(() => {
-        if (sessionId === undefined) {
-            return;
-        }
-
-        axios.get<DailyConfig>(`http://178.232.190.235:${BACKEND_PORT}/get_daily_config`, {
-            headers: { "X-API-KEY": "vanillachocolate" },
-            withCredentials: true,
-        })
-        .then((response) => {
-            console.log("Received daily config: ", response.data);
-            setDailyConfig(response.data);
-        })
-        .catch((error) => {
-            setError("Error loading daily config: " + error);
-        });
-    }, [sessionId]);
-    
-
-    if (error !== undefined) {
-        return (
-            <div className="App">
-                <h1 className="Error">{error}</h1>
-            </div>
-        );
-    }
-
-    if (sessionId === undefined) {
-        return (
-            <div className="App">
-                <h1 className="Loading">Loading session...</h1>
-            </div>
-        );
     }
 
     if (dailyConfig === undefined) {
         return (
             <div className="App">
-                <h1 className="Loading">Loading daily config...</h1>
+                <h1 className="Title">Error: no set config</h1>
             </div>
         );
     }
 
     let content = null;
     let header = null;
-    switch (game) {
+    switch (screen) {
+        case "startscreen":
+            header = (
+                <h1 className="Title">Welcome</h1>
+            );
+            content = (
+                <StartScreen
+                    setSessionId={setSessionId}
+                    setDailyConfig={setDailyConfig}
+                    setName={setName}
+                    updateScreen={updateScreen}
+                />
+            );
+            break
         case "wordsearch":
             header = (
                 <h1 className="Title">Word Search</h1>
@@ -120,7 +64,7 @@ const App = () => {
             content = (
                 <WordSearch 
                     config={dailyConfig.wordSearchConfig}
-                    gameCompleted={gameCompleted}
+                    updateScreen={updateScreen}
                 />
             );
             break;
@@ -131,7 +75,7 @@ const App = () => {
             content = (
                 <Weave
                     config={dailyConfig.weaveConfig}
-                    gameCompleted={gameCompleted}
+                    updateScreen={updateScreen}
                 />
             );
             break;
@@ -143,14 +87,6 @@ const App = () => {
                 <EndScreen
                     times={times}
                 />
-            );
-            break;
-        default:
-            header = (
-                <h1 className="Title">Error</h1>
-            );
-            content = (
-                <div>Error loading game. Please refresh</div>
             );
             break;
     }

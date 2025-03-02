@@ -48,7 +48,9 @@ def update_config():
     config = Config()
 
     config.word_search_config = get_word_search_config()
+    print("Word search config created")
     config.weave_config = get_weave_config()
+    print("Weave config created")
 
     global DAILY_CONFIG
     DAILY_CONFIG = config
